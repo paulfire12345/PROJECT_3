@@ -203,3 +203,75 @@ If you're working from command-line, [google-java-format](https://github.com/goo
 - `./build.ps1 fmt`
 - `./build.sh fmt`
 
+##ADDITIONAL COMMENTS
+
+
+
+One good approach to validating HTTP requests is to use regex to match on the errors that you're looking for. 
+
+The trick is crafting regex that doesn't confuse application errors for syntax errors. 
+
+HTTP requests can produce 400, 404, and 501 errors. 400 errors are bad requests, i.e., syntax errors. 404 errors are file not found. 501 are not implemented errors. 
+
+For example, the PUT method is a 501 error. We wouldn't want to report it as a 400 error.
+
+Here is a regex that you can use to match HTTP requests: "^[a-zA-Z]+ ((/[\\w|-]+)+(\\.[\\w]+))? HTTP/[\\d|.]+\r\n([\\w|-]+:.+\r\n)*\r\n". 
+
+That's a mouthful. Let's break it down. First, we have the character '^'. This is used to match the beginning of a string. 
+
+We don't want any characters prepended to our HTTP request. This would fail any request that does. 
+
+This is followed by "[a-zA-Z]+", which is a range of one or more alphabetic characters lowercase or uppercase. 
+
+The '+' means that we want one or more of the previous thing in brackets. This is used to match the HTTP method, which can be any english word, such as GET or HEAD. T
+
+hen we want a space SP. This is followed by "((/[\\w|-]+)+(\\.[\\w]+))?", which is used to match the file path URI. 
+
+A file path URI in HTTP always begins with the path delimiter '/'. 
+
+Each path delimiter '/' is followed by a directory or file name, which can be any alphanumeric character, an underscore, or a '-' in HTTP. 
+
+The '\\w' is any alphanumeric character or underscore. The '[\\w|-]' means any alphanumeric character or '-'. 
+
+The '+' once again means one more of. So we have a path delimiter '/' followed by one or more alphanumeric characters or dashes, which constitute the directory or file name. 
+
+Since a file path can be several directories deep, we need to use "(/[\\w|-]+)+" to specify that we can one or more terms of a path delimiter followed by a directory or file name. 
+
+Every file path must end in a file name with a file extension. A file extension is a '.' followed by alphanumeric characters. 
+
+As such, we have "(/[\\w|-]+)+(\\.[\\w]+)" which is a sequence of path delimiters of directory names terminated by a file name with a file extension. 
+
+Since files are technically optional for an HTTP request, we then use "((/[\\w|-]+)+(\\.[\\w]+))?". The '?' means zero or one. 
+
+The file path is followed by a space SP and then the HTTP version. The HTTP version is HTTP followed by a delimiter '/' followed by the version number. 
+
+The version number is a sequence of digits separated by '.'. So we have "HTTP/[\\d|.]+", where '\\d' is any digit, so "[\\d|.]+" is one or more digits or '.'. 
+
+The HTTP version is followed by a CRLF '\r\n'. After the request line, we can have any number of header fields. A header field is represented by "[\\w|-]+:.+\r\n". 
+
+The header begins with a tag, which can be any alphanumeric character or '-', so we have "[\\w|-]+". This is followed by a colon ':' and anything for content. 
+
+Since content can be anything, we use '.+', which just means one or more characters. Every header field ends in CRLF '\r\n'. 
+
+We can have zero or more header fields, so we have "([\\w|-]+:.+\r\n)*". Lastly, we need a CRLF between the optional header fields and the message body, so we have a CRLF '\r\n' at the end. 
+
+We could then follow the request with a '$' which means end of string, but we need to permit a message body, so we don't use '$'.
+
+Any regex that doesn't match this is a 400 error.
+
+---
+
+Another regex that we can use for 501 errors is: ""^(GET|HEAD) (/[\\w|-]+)+(.html|.htm|.gif|.jpg|.jpeg|.pdf) HTTP/1\\.1". 
+
+This is same as the request line of the first regex but several of the terms have been qualified. First, we explicitly name the methods that we support. 
+
+Those being GET and HEAD. Then, we name the file extensions that we support in the file extension field. Lastly, we list the version that we support. 
+
+That being HTTP/1.1. If a request matches the former regex, then it is a valid HTTP request. If it fails this regex, then it is valid, but not supported, so we return a 501 Not Implemented. 
+
+Note that this also causes a 501 if the file URI is not provided, but GET and HEAD both require a file URI, so this is fine.
+
+---
+
+One other thing you need is specifically check for the HOST header field. I'll leave that to you. Hope you find this helpful.
+

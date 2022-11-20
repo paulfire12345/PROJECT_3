@@ -157,11 +157,6 @@ Your implementation MUST follow the following guidelines:
 
 Use **TUGrader.java** to ensure that all unit tests in the provided test file(s) pass.
 
-## Submission
-The assignment is due by the end-of-day on the last day of classes. You must include a well typed report explaining your design and implementation. You MUST implement the required features as described in this document and you MAY include any other additional features as long as they are HTTP/1.1 compliant.
-
-*To submit your work, please review the **Commits** section below.*
-
 ## Grading
 Can parse and validate HTTP requests
 Can serve HTTP response

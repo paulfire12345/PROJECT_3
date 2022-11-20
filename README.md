@@ -203,7 +203,7 @@ If you're working from command-line, [google-java-format](https://github.com/goo
 - `./build.ps1 fmt`
 - `./build.sh fmt`
 
-##ADDITIONAL COMMENTS
+## ADDITIONAL COMMENTS
 
 
 

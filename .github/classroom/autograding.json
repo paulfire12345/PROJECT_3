@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Test All",
+      "setup": "",
+      "run": "./build.sh test all",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 3,
+      "points": 300
+    }
+  ]
+}

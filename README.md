@@ -158,7 +158,9 @@ Your implementation MUST follow the following guidelines:
 Use **TUGrader.java** to ensure that all unit tests in the provided test file(s) pass.
 
 ## Grading
+
 Can parse and validate HTTP requests
+
 Can serve HTTP response
 
 
